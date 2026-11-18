@@ -157,6 +157,54 @@
                 width: 60px;
             }
         }
+
+                .tabela-container {
+            width: 100%;
+            overflow-x: auto;
+        }
+
+        .clientes-table {
+            border-collapse: collapse;
+            margin-top: 12px;
+            min-width: 100%;
+            text-align: left;
+        }
+
+        .clientes-table th:first-child,
+        .clientes-table td:first-child {
+            min-width: 140px;
+        }
+
+        .clientes-table td:first-child {
+            width: auto;
+            padding: 11px 12px;
+        }
+
+        .clientes-table th,
+        .clientes-table td {
+            padding: 11px 12px;
+            border-bottom: 1px solid #e3e3df;
+        }
+
+        .clientes-table th {
+            color: #fff;
+            background: #394652;
+            font-size: 0.85rem;
+            letter-spacing: 0.04em;
+        }
+
+        .clientes-table tbody tr:nth-child(even) {
+            background: #f7f6f2;
+        }
+
+        .clientes-table tbody tr:hover {
+            background: #fff3d4;
+        }
+
+        .clientes-table .sem-clientes {
+            color: #68717a;
+            text-align: center;
+        }
     </style>
 </head>
 <body>
@@ -168,7 +216,7 @@
         <nav aria-label="Menu principal">
             <ul>
                 <li><a href="inicio.php">Início</a></li>
-                <li><a href="#">Cliente</a></li>
+                <li><a href="cliente.php">Cliente</a></li>
                 <li><a href="veiculo.php">Veículo</a></li>
                 <li><a href="agendamento.php">Agendamento</a></li>
             </ul>
@@ -219,6 +267,47 @@
                         </td>
                     </tr>
                 </table>
+
+        <br><br>
+
+        <div class="tabela-container">
+        <table class="clientes-table">
+            <thead>
+                <tr>
+                    <th>PLACA</th>
+                    <th>MODELO</th>
+                    <th>MARCA</th>
+                </tr>
+            </thead>
+            <tbody>
+                <?php
+                if (isset($bd) && $bd !== null) {
+                    $sql = "SELECT a.placa, a.modelo, a.marca 
+                            FROM veiculos a 
+                            ORDER BY a.placa";
+                    $stmt = $bd->prepare($sql);
+                    $stmt->execute();
+                    $veiculos = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+                    if ($veiculos) {
+                        foreach ($veiculos as $veiculo) {
+                            ?>
+                            <tr>
+                                <td><?php echo htmlspecialchars($veiculo['placa']); ?></td>
+                                <td><?php echo htmlspecialchars($veiculo['modelo']); ?></td>
+                                <td><?php echo htmlspecialchars($veiculo['marca']); ?></td>
+                            </tr>
+                            <?php
+                        }
+                    } else {
+                        echo '<tr><td class="sem-clientes" colspan="3">Nenhum veículo cadastrado.</td></tr>';
+                    }
+                }
+                ?>
+            </tbody>
+        </table>
+        </div>
+
             </form>
         </section>
     </main>

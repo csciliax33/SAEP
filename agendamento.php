@@ -73,9 +73,9 @@
 
         main {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            grid-template-columns: 1fr;
             gap: 20px;
-            width: min(850px, calc(100% - 32px));
+            width: min(1100px, calc(100% - 32px));
             margin: 40px auto;
         }
 
@@ -107,6 +107,44 @@
         form,
         table {
             width: 100%;
+        }
+
+        .tabela-container {
+            width: 100%;
+            overflow-x: auto;
+        }
+
+        .clientes-table {
+            min-width: 720px;
+            border-collapse: collapse;
+            text-align: left;
+        }
+
+        .clientes-table th,
+        .clientes-table td {
+            padding: 12px 16px;
+            border-bottom: 1px solid #e3e3df;
+            overflow-wrap: anywhere;
+        }
+
+        .clientes-table th {
+            color: #fff;
+            background: #394652;
+            font-size: 0.85rem;
+            letter-spacing: 0.04em;
+        }
+
+        .clientes-table tbody tr:nth-child(even) {
+            background: #f7f6f2;
+        }
+
+        .clientes-table tbody tr:hover {
+            background: #fff3d4;
+        }
+
+        .clientes-table .sem-clientes {
+            color: #68717a;
+            text-align: center;
         }
 
         td:first-child {
@@ -159,6 +197,54 @@
             td:first-child {
                 width: 60px;
             }
+        }
+
+               .tabela-container {
+            width: 100%;
+            overflow-x: auto;
+        }
+
+        .clientes-table {
+            border-collapse: collapse;
+            margin-top: 12px;
+            min-width: 100%;
+            text-align: left;
+        }
+
+        .clientes-table th:first-child,
+        .clientes-table td:first-child {
+            min-width: 140px;
+        }
+
+        .clientes-table td:first-child {
+            width: auto;
+            padding: 11px 12px;
+        }
+
+        .clientes-table th,
+        .clientes-table td {
+            padding: 11px 12px;
+            border-bottom: 1px solid #e3e3df;
+        }
+
+        .clientes-table th {
+            color: #fff;
+            background: #394652;
+            font-size: 0.85rem;
+            letter-spacing: 0.04em;
+        }
+
+        .clientes-table tbody tr:nth-child(even) {
+            background: #f7f6f2;
+        }
+
+        .clientes-table tbody tr:hover {
+            background: #fff3d4;
+        }
+
+        .clientes-table .sem-clientes {
+            color: #68717a;
+            text-align: center;
         }
     </style>
 </head>
@@ -233,6 +319,52 @@
                         </td>
                     </tr>
                 </table>
+
+            <br><br>
+
+        <div class="tabela-container">
+        <table class="clientes-table">
+            <thead>
+                <tr>
+                    <th>DATA</th>
+                    <th>HORARIO</th>
+                    <th>VEÍCULO</th>
+                    <th>CLIENTE</th>
+                    
+                </tr>
+            </thead>
+            <tbody>
+                <?php
+                if (isset($bd) && $bd !== null) {
+                    $sql = "SELECT ag.data, ag.horario, v.placa, v.marca, v.modelo, c.nome
+                            FROM agendamentos ag
+                            INNER JOIN veiculos v ON v.id = ag.veiculos_id
+                            INNER JOIN clientes c ON c.id = ag.clientes_id
+                            ORDER BY ag.data, ag.horario";
+                    $stmt = $bd->prepare($sql);
+                    $stmt->execute();
+                    $agendamentos = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+                    if ($agendamentos) {
+                        foreach ($agendamentos as $agendamento) {
+                            ?>
+                            <tr>
+                                <td><?php echo htmlspecialchars($agendamento['data']); ?></td>
+                                <td><?php echo htmlspecialchars($agendamento['horario']); ?></td>
+                                <td><?php echo htmlspecialchars($agendamento['marca'] . ' ' . $agendamento['modelo'] . ' (' . $agendamento['placa'] . ')'); ?></td>
+                                <td><?php echo htmlspecialchars($agendamento['nome']); ?></td>
+                            </tr>
+                            <?php
+                        }
+                    } else {
+                        echo '<tr><td class="sem-clientes" colspan="4">Nenhum agendamento cadastrado.</td></tr>';
+                    }
+                }
+                ?>
+            </tbody>
+        </table>
+        </div>
+
             </form>
         </section>
     </main>

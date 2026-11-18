@@ -151,18 +151,6 @@
         <h1>OFICINA MECANICA ⚙️🔧</h1>
     </header>
 
-    <div class="menu">
-        <nav aria-label="Menu principal">
-            <ul>
-                <li><a href="inicio.php">Início</a></li>
-                <li><a href="cliente.php">Cliente</a></li>
-                <li><a href="veiculo.php">Veículo</a></li>
-                <li><a href="agendamento.php">Agendamento</a></li>
-            </ul>
-        </nav>
-    </div>
-
-   
 
     <main>
         <section class="boas-vindas">
@@ -172,7 +160,7 @@
 
         <section class="login-card">
             <h2>⚙ Área de acesso</h2>
-            <form action="conexao/validar_login.php" method="post">
+            <form action="conexao/validarLogin.php" method="post">
                 <table>
                     <tr>
                         <td><label for="login">Login</label></td>
