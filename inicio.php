@@ -1,3 +1,13 @@
+<?php
+session_start();
+
+if (!isset($_SESSION['usuario_nome'])) {
+    header('Location: index.php');
+    exit;
+}
+
+$nomeUsuario = $_SESSION['usuario_nome'];
+?>
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
@@ -134,6 +144,12 @@
             margin: 0;
         }
 
+        .botao-sair {
+            display: flex;
+            justify-content: center;
+            margin: 0 0 40px;
+        }
+
         @media (max-width: 480px) {
             main {
                 grid-template-columns: 1fr;
@@ -167,11 +183,15 @@
     <main>
         <section class="boas-vindas">
             <h2>Página Inicial</h2>
-            <p>Bem-vindo à nossa oficina mecânica!</p>
+            <p>Bem-vindo, <strong><?= htmlspecialchars($nomeUsuario, ENT_QUOTES, 'UTF-8') ?></strong>, à nossa oficina mecânica!</p>
         </section>
 
         
     </main>
+
+    <form class="botao-sair" action="logout.php" method="post">
+        <button type="submit">Sair</button>
+    </form>
 
     <footer>
         <p>Copyright © 2026 - <strong>celia</strong></p>

@@ -257,6 +257,10 @@ require_once __DIR__ . '/conexao/bd.php';
             </thead>
             <tbody>
                 <?php
+
+                require_once "conexao/bd.php";
+                require_once "conexao/criptografia.php";
+
                 if (isset($bd) && $bd !== null) {
                     $sql = "SELECT a.nome, a.cpf, a.contato 
                             FROM clientes a 
@@ -270,7 +274,7 @@ require_once __DIR__ . '/conexao/bd.php';
                             ?>
                             <tr>
                                 <td><?php echo htmlspecialchars($cliente['nome']); ?></td>
-                                <td><?php echo htmlspecialchars($cliente['cpf']); ?></td>
+                                <td><?php echo htmlspecialchars(descriptografar($cliente['cpf'])); ?></td>
                                 <td><?php echo htmlspecialchars($cliente['contato']); ?></td>
                             </tr>
                             <?php

@@ -1,8 +1,9 @@
 <?php
     require_once "bd.php";
+    require_once "criptografia.php";
 
     $nome = $_POST['nome'];
-    $cpf = $_POST['cpf'];
+    $cpf = criptografar($_POST['cpf']);
     $contato = $_POST['contato'];
 
     $sql = "INSERT INTO clientes (nome, cpf, contato) VALUES (:nome, :cpf, :contato)";
