@@ -1,4 +1,5 @@
 <?php
+require_once __DIR__ . '/validarSessao.php';
     require_once "bd.php";
 
     $data = $_POST['data'];

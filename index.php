@@ -156,6 +156,9 @@
         <section class="boas-vindas">
             <h2>Página de Login</h2>
             <p>Coloque as informações de Login do Usuário.</p>
+            <?php if (isset($_GET['expirada'])): ?>
+                <p role="alert">Sua sessão expirou por inatividade. Faça login novamente.</p>
+            <?php endif; ?>
         </section>
 
         <section class="login-card">

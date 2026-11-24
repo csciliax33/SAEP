@@ -14,8 +14,10 @@ if($stmt->rowCount() > 0){
 
     $usuario = $stmt->fetch(PDO::FETCH_ASSOC);
     if(password_verify($senha, $usuario['senha'])){
+        session_regenerate_id(true);
         $_SESSION['usuario_nome'] = $usuario['nome'];
         $_SESSION['usuario_login'] = $usuario['login'];
+        $_SESSION['ultima_atividade'] = time();
         echo "<script> alert('Seja Bem vindo');window.location.href = '../inicio.php'; </script>";
     }else{
         echo "

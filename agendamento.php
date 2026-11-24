@@ -1,3 +1,6 @@
+<?php
+require_once __DIR__ . '/conexao/validarSessao.php';
+?>
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
@@ -257,7 +260,7 @@
         <nav aria-label="Menu principal">
             <ul>
                 <li><a href="inicio.php">Início</a></li>
-                <li><a href="#">Cliente</a></li>
+                <li><a href="cliente.php">Cliente</a></li>
                 <li><a href="veiculo.php">Veículo</a></li>
                 <li><a href="agendamento.php">Agendamento</a></li>
             </ul>
@@ -319,6 +322,7 @@
                         </td>
                     </tr>
                 </table>
+            </form>
 
             <br><br>
 
@@ -330,13 +334,14 @@
                     <th>HORARIO</th>
                     <th>VEÍCULO</th>
                     <th>CLIENTE</th>
-                    
+                    <th>REMOVER</th>
+                    <th>EDITAR</th>
                 </tr>
             </thead>
             <tbody>
                 <?php
                 if (isset($bd) && $bd !== null) {
-                    $sql = "SELECT ag.data, ag.horario, v.placa, v.marca, v.modelo, c.nome
+                    $sql = "SELECT ag.id, ag.data, ag.horario, v.placa, v.marca, v.modelo, c.nome
                             FROM agendamentos ag
                             INNER JOIN veiculos v ON v.id = ag.veiculos_id
                             INNER JOIN clientes c ON c.id = ag.clientes_id
@@ -353,11 +358,23 @@
                                 <td><?php echo htmlspecialchars($agendamento['horario']); ?></td>
                                 <td><?php echo htmlspecialchars($agendamento['marca'] . ' ' . $agendamento['modelo'] . ' (' . $agendamento['placa'] . ')'); ?></td>
                                 <td><?php echo htmlspecialchars($agendamento['nome']); ?></td>
+                                <td>
+                                    <a href="excluirAgendamento.php?id=<?php echo $agendamento['id']; ?>" 
+                                       onclick="return confirm('Deseja remover este agendamento?');">Remover
+                                    </a>
+                                </td>
+                                 <td>
+                                    <a href="conexao/editar.php?id=<?php echo $agendamento['id']; ?>" 
+                                       onclick="return confirm('Deseja editar este agendamento?');">Editar
+                                    </a>
+                                </td>
+
+
                             </tr>
                             <?php
                         }
                     } else {
-                        echo '<tr><td class="sem-clientes" colspan="4">Nenhum agendamento cadastrado.</td></tr>';
+                        echo '<tr><td class="sem-clientes" colspan="6">Nenhum agendamento cadastrado.</td></tr>';
                     }
                 }
                 ?>
@@ -365,7 +382,6 @@
         </table>
         </div>
 
-            </form>
         </section>
     </main>
 

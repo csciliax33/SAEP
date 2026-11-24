@@ -1,11 +1,5 @@
 <?php
-session_start();
-
-if (!isset($_SESSION['usuario_nome'])) {
-    header('Location: index.php');
-    exit;
-}
-
+require_once __DIR__ . '/conexao/validarSessao.php';
 $nomeUsuario = $_SESSION['usuario_nome'];
 ?>
 <!DOCTYPE html>

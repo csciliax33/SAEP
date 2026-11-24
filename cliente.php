@@ -1,5 +1,44 @@
 <?php
+require_once __DIR__ . '/conexao/validarSessao.php';
 require_once __DIR__ . '/conexao/bd.php';
+require_once __DIR__ . '/conexao/criptografia.php';
+
+$busca = trim((string) ($_GET['busca'] ?? ''));
+$normalizar = static function ($texto) {
+    return function_exists('mb_strtolower')
+        ? mb_strtolower($texto, 'UTF-8')
+        : strtolower($texto);
+};
+$buscaNormalizada = $normalizar($busca);
+$buscaNumerica = preg_match('/^[0-9\s.()+\/-]+$/', $busca) === 1;
+$buscaDigitos = $buscaNumerica ? preg_replace('/\D+/', '', $busca) : '';
+$clientes = [];
+
+if (isset($bd) && $bd !== null) {
+    $stmt = $bd->prepare(
+        'SELECT id, nome, cpf, contato FROM clientes ORDER BY nome'
+    );
+    $stmt->execute();
+    $clientes = $stmt->fetchAll(PDO::FETCH_ASSOC);
+}
+
+$clientesFiltrados = [];
+foreach ($clientes as $cliente) {
+    $cpf = descriptografar($cliente['cpf']);
+    $textoCliente = $normalizar($cliente['nome'] . ' ' . $cliente['contato']);
+    $cpfNormalizado = preg_replace('/\D+/', '', $cpf);
+    $contatoNormalizado = preg_replace('/\D+/', '', $cliente['contato']);
+
+    if ($busca === ''
+        || strpos($textoCliente, $buscaNormalizada) !== false
+        || ($buscaDigitos !== ''
+            && (strpos($cpfNormalizado, $buscaDigitos) !== false
+                || strpos($contatoNormalizado, $buscaDigitos) !== false))
+    ) {
+        $cliente['cpf_exibicao'] = $cpf;
+        $clientesFiltrados[] = $cliente;
+    }
+}
 ?>
 <!DOCTYPE html>
 <html lang="pt-br">
@@ -95,6 +134,24 @@ require_once __DIR__ . '/conexao/bd.php';
         form,
         table {
             width: 100%;
+        }
+
+        .busca-clientes {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: end;
+            gap: 10px;
+            margin-bottom: 16px;
+        }
+
+        .busca-clientes label {
+            flex-basis: 100%;
+            font-weight: 700;
+        }
+
+        .busca-clientes input {
+            flex: 1;
+            width: auto;
         }
 
         .tabela-container {
@@ -243,8 +300,18 @@ require_once __DIR__ . '/conexao/bd.php';
                         </td>
                     </tr>
                 </table>
+            </form>
 
-             <br><br>
+            <form action="cliente.php" method="get" class="busca-clientes">
+                <label for="busca">Buscar por nome, CPF ou contato</label>
+                <input id="busca" type="search" name="busca"
+                       value="<?= htmlspecialchars($busca, ENT_QUOTES, 'UTF-8') ?>"
+                       placeholder="Digite para buscar">
+                <button type="submit">Buscar</button>
+                <?php if ($busca !== ''): ?>
+                    <a href="cliente.php">Limpar busca</a>
+                <?php endif; ?>
+            </form>
 
         <div class="tabela-container">
         <table class="clientes-table">
@@ -253,41 +320,35 @@ require_once __DIR__ . '/conexao/bd.php';
                     <th>NOME</th>
                     <th>CPF</th>
                     <th>CONTATO</th>
+                    <th>AÇÃO</th>
                 </tr>
             </thead>
             <tbody>
                 <?php
 
-                require_once "conexao/bd.php";
-                require_once "conexao/criptografia.php";
-
-                if (isset($bd) && $bd !== null) {
-                    $sql = "SELECT a.nome, a.cpf, a.contato 
-                            FROM clientes a 
-                            ORDER BY a.nome";
-                    $stmt = $bd->prepare($sql);
-                    $stmt->execute();
-                    $clientes = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
-                    if ($clientes) {
-                        foreach ($clientes as $cliente) {
-                            ?>
-                            <tr>
-                                <td><?php echo htmlspecialchars($cliente['nome']); ?></td>
-                                <td><?php echo htmlspecialchars(descriptografar($cliente['cpf'])); ?></td>
-                                <td><?php echo htmlspecialchars($cliente['contato']); ?></td>
-                            </tr>
-                            <?php
-                        }
-                    } else {
-                        echo '<tr><td class="sem-clientes" colspan="3">Nenhum cliente cadastrado.</td></tr>';
+                if ($clientesFiltrados) {
+                    foreach ($clientesFiltrados as $cliente) {
+                        ?>
+                        <tr>
+                            <td><?= htmlspecialchars($cliente['nome'], ENT_QUOTES, 'UTF-8') ?></td>
+                            <td><?= htmlspecialchars($cliente['cpf_exibicao'], ENT_QUOTES, 'UTF-8') ?></td>
+                            <td><?= htmlspecialchars($cliente['contato'], ENT_QUOTES, 'UTF-8') ?></td>
+                            <td>
+                                <a href="excluir.php?id=<?= (int) $cliente['id'] ?>"
+                                   onclick="return confirm('Deseja remover este cliente?');">Remover</a>
+                            </td>
+                        </tr>
+                        <?php
                     }
+                } elseif ($clientes) {
+                    echo '<tr><td class="sem-clientes" colspan="4">Nenhum cliente encontrado.</td></tr>';
+                } else {
+                    echo '<tr><td class="sem-clientes" colspan="4">Nenhum cliente cadastrado.</td></tr>';
                 }
                 ?>
             </tbody>
         </table>
         </div>
-            </form>
         </section>
     </main>
 
